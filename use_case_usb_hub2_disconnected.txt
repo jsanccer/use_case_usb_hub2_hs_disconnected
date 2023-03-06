@@ -1,0 +1,96 @@
+USE CASE 1: everything plugged in but the mainboard's usb bus labeled as "hub 2", and roland mc-707 soundcard plugged into usb-a type connector in the rear panel
+
+-error message "no internal audio device could be found!" pops up on startup
+
+-external soundcard is recognized but when selecting it in preferences/audio devices, the error "no internal audio device could be found!" pops up and theres no sound from the external soundcard. No "internal" audio device is shown in the drop-down.
+
+following are OS system logs and a speaker-test command that worked OK
+
+root@mpc-live-ii:~# journalctl -u inmusic-mpc -b
+-- Journal begins at Mon 2023-03-06 13:41:43 CET, ends at Mon 2023-03-06 13:44:22 CET. --
+Mar 06 13:41:48 mpc-live-ii systemd[1]: Started InMusic MPC Application.
+Mar 06 13:41:48 mpc-live-ii az01-launch-MPC[323]: *** TKGL MPC BOOTSTRAP ***
+Mar 06 13:41:48 mpc-live-ii az01-launch-MPC[323]: MPC Live Mk II detected
+Mar 06 13:41:48 mpc-live-ii az01-launch-MPC[323]: Mounted usb disks :
+Mar 06 13:41:49 mpc-live-ii az01-launch-MPC[323]: LibXtract compiled with ooura FFT
+Mar 06 13:41:49 mpc-live-ii az01-launch-MPC[323]: MPC 2.11.8
+Mar 06 13:41:49 mpc-live-ii az01-launch-MPC[323]: Reducing RLIMIT_DATA from 18446744073709551615 -> 1930772480
+Mar 06 13:41:50 mpc-live-ii az01-launch-MPC[323]: Reducing RLIMIT_DATA from 1930772480 -> 1930125312
+Mar 06 13:41:53 mpc-live-ii az01-launch-MPC[323]: Reducing RLIMIT_DATA from 1930125312 -> 1926144000
+Mar 06 13:41:59 mpc-live-ii az01-launch-MPC[323]: ButtonStates reply from firmware: {0,0,0,0}
+Mar 06 13:42:03 mpc-live-ii az01-launch-MPC[323]: **** Failed to find AZ01 audio device!
+Mar 06 13:42:13 mpc-live-ii az01-launch-MPC[323]: **** Failed to find AZ01 audio device!
+Mar 06 13:42:13 mpc-live-ii az01-launch-MPC[323]: Reducing RLIMIT_DATA from 1926144000 -> 1926107136
+Mar 06 13:42:14 mpc-live-ii az01-launch-MPC[323]: Reducing RLIMIT_DATA from 1926107136 -> 1925984256
+Mar 06 13:42:14 mpc-live-ii az01-launch-MPC[323]: **** UI has started, but no audio device was found
+Mar 06 13:42:14 mpc-live-ii az01-launch-MPC[323]: Reducing RLIMIT_DATA from 1925984256 -> 1925890048
+Mar 06 13:42:14 mpc-live-ii az01-launch-MPC[323]: Reducing RLIMIT_DATA from 1925890048 -> 1925718016
+
+
+root@mpc-live-ii:~# lsusb
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 003: ID 09e8:0047 AKAI  Professional M.I. Corp. MPC Live II
+Bus 002 Device 005: ID 05e3:0743 Genesys Logic, Inc. SDXC and microSDXC CardReader
+Bus 002 Device 004: ID 0582:0229 Roland Corp. MC-707
+Bus 002 Device 002: ID 09e8:5047 AKAI  Professional M.I. Corp. MPC Live Mk 2 Hub
+Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+
+root@mpc-live-ii:~# dmesg
+[    0.000000] Booting Linux on physical CPU 0x500
+[    0.000000] Linux version 5.15.89-inmusic-2023-01-18-rt56 (buildroot@buildroot) (arm-buildroot-linux-gnueabihf-gcc.br_real (Buildroot 2021.02.9-204-g1da559a23d) 10.3.0, GNU ld (GNU Binutils) 2.35.2) #1 SMP PREEMPT_RT Tue Jan 24 17:57:35 UTC 2023
+[    0.000000] CPU: ARMv7 Processor [410fc0d1] revision 1 (ARMv7), cr=10c5387d
+[    0.000000] CPU: div instructions available: patching division code
+[    0.000000] CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+[    0.000000] OF: fdt: Machine model: Akai Professional MPC Live Mk 2
+[    0.000000] Memory policy: Data cache writealloc
+[    0.000000] OF: reserved mem: initialized node framebuffer, compatible id rockchip,framebuffer-memory
+.
+.
+.
+[    0.068445] Advanced Linux Sound Architecture Driver Initialized.
+.
+.
+.
+[    0.562704] ALSA device list:
+[    0.562708]   No soundcards found.
+.
+.
+.
+[    1.435760] usb 2-1.5: new full-speed USB device number 3 using ehci-platform
+[    1.531283] usb 2-1.5: New USB device found, idVendor=09e8, idProduct=0047, bcdDevice= 0.44
+[    1.531290] usb 2-1.5: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[    1.531295] usb 2-1.5: Product: MPC Live II
+[    1.531298] usb 2-1.5: Manufacturer: Akai Pro
+.
+.
+.
+[    2.842659] usb 2-1.1: New USB device found, idVendor=0582, idProduct=0229, bcdDevice= 1.00
+[    2.842669] usb 2-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[    2.842674] usb 2-1.1: Product: MC-707
+[    2.842677] usb 2-1.1: Manufacturer: Roland
+.
+.
+.
+
+root@mpc-live-ii:~# aplay -l
+**** List of PLAYBACK Hardware Devices ****
+card 1: MC707 [MC-707], device 0: USB Audio [USB Audio]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+  
+  
+root@mpc-live-ii:~# speaker-test -Dplughw:CARD=MC707 -c4 -s2 -twav
+
+speaker-test 1.2.4
+
+Playback device is plughw:CARD=MC707
+Stream parameters are 48000Hz, S16_LE, 4 channels
+WAV file(s)
+Rate set to 48000Hz (requested 48000Hz)
+Buffer size range from 13 to 96000
+Period size range from 6 to 48000
+Using max buffer size 96000
+Periods = 4
+was set period_size = 24000
+was set buffer_size = 96000
+  - Front Center
